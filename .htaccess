@@ -1,0 +1,21 @@
+<IfModule mod_rewrite.c>
+
+RewriteEngine On
+RewriteBase /
+RewriteRule ^index\.php$ - [L]
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+
+#RewriteRule . /index.php [L]
+RewriteRule ^index\.html$    index\.php [L]
+
+#RewriteRule post\.php\?p=([0-9]+) 	$1\.html [R=301]
+
+RewriteRule ^([0-9]+)\.html$		post\.php\?p\=$1 [L]
+RewriteRule ^([0-9]+)$	$1\.html  [L,R=301]
+
+RewriteRule ^([a-zA-Z]{1}[\w]*)$	$1$2\.html  [L,R=301]
+RewriteRule ^([a-zA-Z]{1}[\w]*)\.html$	category\.php\?c\=$1$2  [L]
+
+ErrorDocument 404 /404.php
+</IfModule>
