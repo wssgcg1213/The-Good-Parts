@@ -1,4 +1,5 @@
 <?php
+error_reporting(E_ALL & ~E_NOTICE);
 include_once("config.php");
 /**
  * mysql类
@@ -23,6 +24,7 @@ class mysql{
 		echo mysql_error();
 		echo mysql_errno();
 		echo $message;
+		echo $this->links->connect_error;
 		die();
 	}
 
@@ -35,8 +37,8 @@ class mysql{
 		$this->dbpw = $dbpw? $dbpw: $this->dbpw;
 		$this->dbname = $dbname? $dbname: $this->dbname;
 		$this->links = $this->connect();
-		$this->select_db(); 
-		$this->query("SET NAMES '".$this->charset."'");
+		$this->select_db($dbname);
+		$this->links->set_charset($this->charset);
 		//if(DEBUG)echo '<script>alert("DBinitOK")</script>';
 	}
 
@@ -47,7 +49,7 @@ class mysql{
 		$dbhost	= $dbhost? $dbhost : $this->dbhost;
 		$dbuser	= $dbuser? $dbuser: $this->dbuser;
 		$dbpw =	$dbpw? $dbpw: $this->dbpw;
-		if(!$link = mysql_connect($dbhost, $dbuser , $dbpw)){
+		if(!$link = new mysqli($dbhost, $dbuser, $dbpw)){
 			$this->halt("服务器连接错误.");
 		}
 		return $link;
@@ -58,16 +60,16 @@ class mysql{
  */
 	function select_db($dbname = ""){
 		$dbname = $dbname? $dbname: $this->dbname;
-		return mysql_select_db(DATEBASE);
+		return $this->links->select_db($dbname);
 	}
 
 /**
  * 查询
  */
 	function query($sql = ""){
-		$query = mysql_query($sql, $this->links);
+		$query = $this->links->query($sql);
 		$this->rs = $query;
-		 if(!$query){
+		 if($this->links->connect_error){
 		 	$this->halt('服务器查询错误!');
 		 }
 		return $query;
@@ -78,7 +80,11 @@ class mysql{
  */
 	function fetch_array($rs = "", $result_type = MYSQL_ASSOC){
 		$rs = $rs? $rs: $this->rs;
-		return mysql_fetch_array($rs, $result_type);
+		if($result_type == MYSQL_ASSOC){
+			return $rs->fetch_assoc();
+		}else{
+			return $rs->fetch_array();
+		}
 	}
 
 /**
@@ -86,22 +92,16 @@ class mysql{
  */
 	function num_rows($rs = ""){	
 		$rs = $rs? $rs: $this->rs;
-		return mysql_num_rows($rs);
+		return $this->rs->num_rows;
 	}
 
-/**
- * [insert_id 返回数据库结果集的插入id]
- */
-	function insert_id(){	
-			return  mysql_insert_id();
-		}
 
 /**
  * [close 关闭数据库连接]
  */
 	function close($links){
-			return mysql_close($this->links);
-		}
+		return $this->links->free();
+	}
 
 
 }//endClass
