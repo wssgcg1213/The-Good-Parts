@@ -45,7 +45,8 @@ class bRess{
 	}
 
 	function get_option($option_name){
-		$this->mysql->query("SELECT * FROM `B_option` WHERE `option_name`='".$option_name."'");
+		$option_name = addslashes($option_name);
+		$this->mysql->query("SELECT * FROM `B_option` WHERE `option_name`='$option_name'");
 		$_result = $this->mysql->fetch_array();
 		return $_result['option_value'];
 	}
@@ -65,7 +66,9 @@ class bRess{
 
 	function get_term_post($term_type = "category", $term_name = ""){
 		$term_name = $term_name ? (string)$term_name : "";
-		$sql = "SELECT object_id FROM B_term_relationships AS tr INNER JOIN  `B_term` AS t ON t.term_id = tr.term_taxonomy_id INNER JOIN B_term_taxonomy AS tt ON tr.term_taxonomy_id = tt.term_taxonomy_id WHERE tt.taxonomy =  '".$term_type."' AND t.term_name =  '".$term_name."'";
+		$term_type = addslashes($term_type);
+		$term_name = addslashes($term_name);
+		$sql = "SELECT object_id FROM B_term_relationships AS tr INNER JOIN  `B_term` AS t ON t.term_id = tr.term_taxonomy_id INNER JOIN B_term_taxonomy AS tt ON tr.term_taxonomy_id = tt.term_taxonomy_id WHERE tt.taxonomy =  '$term_type' AND t.term_name =  '$term_name'";
 		//echo $sql;
 		$posts = array();
 		$this->mysql->query($sql);
