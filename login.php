@@ -26,10 +26,11 @@ class login{
 	 */
 	function log($username, $pwd){
 		if(!$username || !$pwd)return;
+		$username = addslashes($username);
 		$json = array();
 		$mysql = new mysql();
 		$md5pwd = md5($pwd); 
-		$sql = "SELECT * FROM `B_user` WHERE `username`='".$username."' and `password`='".$md5pwd."'";
+		$sql = "SELECT * FROM `B_user` WHERE `username`='$username' and `password`='$md5pwd'";
 		$mysql->query($sql);
 		if($mysql->num_rows() == 1){
 			$row = $mysql->fetch_array();
